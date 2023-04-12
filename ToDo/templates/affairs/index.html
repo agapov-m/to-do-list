@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+
+{% block sidebar %}
+    {% include 'inc/_sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="task-container">
+        <div class="list-title"> Все задачи </div>
+        <div class="date">{{current_date}}</div>
+
+        {% for category, task in tasks.items %}
+            <div class="task-list">
+                <div class="list-name">
+                    {{category}}
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <ion-icon class="dropbtn-icon" name="ellipsis-horizontal"></ion-icon>
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li><a class="dropdown-item" href="#">Изменить</a></li>
+                          <li><a class="dropdown-item" href="{% url 'delete-category' category.id %}">Удалить</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <form class="task-form" action="{% url 'add-task' %}?url={{request.path}}" method="post">
+                    <input type="hidden" name="category_id" value="{{ category.id }}">
+        
+                    {% csrf_token %}
+                    {{ form.none_field.errors }}
+                    <button class="add-task-button"></button>
+                        
+                    {{ form.title }}
+                    {{ form.title.errors }}
+
+                    <div hidden="true">{{form.category}}</div>
+                    
+                </form>
+
+                <div class="current_tasks">
+                    {% for current_task in task.current %}
+                        <form class="complete-task" action="{% url 'complete-task' current_task.id %}?url={{request.path}}" method="post">
+                            {% csrf_token %}
+                            <button class="complete-task-button"></button>
+                        </form>
+
+                        <div class="task-title">
+                            {{ current_task }}
+
+                            <div class="delete-task">
+                                <a href="{% url 'delete-task' current_task.id %}?url={{request.path}}">
+                                    <ion-icon name="trash-outline" class="delete-icon"></ion-icon>
+                                </a>
+                            </div> 
+                        </div>
+                   {% endfor %}
+                </div>
+
+                <div class="completed_tasks">
+                    <div class="label-completed">Завершенные</div>
+                    {% for completed_task in task.completed %}
+                        <form class="complete-task" action="{% url 'complete-task' completed_task.id %}?url={{request.path}}" method="post">
+                            {% csrf_token %}
+                            <button class="complete-task-button"></button>
+                        </form>
+                        
+                        <div class="completed-task-title">
+                            {{ completed_task }}
+
+                            <span>
+                                <div class="delete-task">
+                                    <a href="{% url 'delete-task' completed_task.id %}?url={{request.path}}">
+                                        <ion-icon name="trash-outline" class="delete-icon"></ion-icon>
+                                    </a>
+                                </div> 
+                            </span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+      
+{% endblock %}

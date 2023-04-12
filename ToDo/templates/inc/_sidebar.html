@@ -1,0 +1,49 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
+
+{% load affairs_tags %}
+
+{% list_categories as category %}
+{% add_category as category_form %}
+
+<div class="menu">
+    <div class="menu-title" style="display: flex;">
+        <ion-icon class="menu-icon" name="checkmark-circle-outline"></ion-icon> 
+        <h3> Мои задачи </h3>
+    </div>
+    {% with request.path as current_path %}
+        <ul>
+            <li>
+                {% url 'home' as home %}
+                <a href="{{home}}">
+                    <div {% if current_path == home %} class="active" {% else %}class="category-item" {% endif %}>Все задачи</div>
+                </a>
+            </li>
+            {% for item in category %}
+                <li>
+                    {% url 'get_category' item.id as category%}
+                    <a href="{{category}}">
+                        <div {% if current_path == category %} class="active" {% else %}class="category-item" {% endif %}>{{item.name}}</div>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endwith %}
+    
+    <form method="post" action="{% url 'add-category' %}">
+        {% csrf_token %}
+        <div style="display: flex;">
+            <ion-icon name="add-outline" class="form-icon"></ion-icon>
+            {{ category_form.name }}
+        </div>
+        <div>
+            {{category_form.name.errors}}
+        </div>
+    </form>
+    
+</div>
+
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+

@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block sidebar %}
+    {% include 'inc/_sidebar.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="task-container" style="margin-top: 70px;">
+        <div class="task-list">
+            <div class="list-name">
+                {{category}}
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <ion-icon class="dropbtn-icon" name="ellipsis-horizontal"></ion-icon>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="#">Изменить</a></li>
+                      <li><a href="" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#deleteModal">Удалить</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="date">{{current_date}}</div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="exampleModalLabel">Удаление списка</h1>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      Вы действительно хотите удалить список "{{category}}" и все записи связанные с ним?
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                      <a href="{% url 'delete-category' category.id %}" type="button" class="btn btn-danger">
+                        Удалить
+                      </a>                         
+                    </div>
+                  </div>
+                </div>
+            </div>
+
+            <form class="task-form" action="{% url 'add-task' %}?url={{request.path}}" method="post">
+                <input type="hidden" name="category_id" value="{{ category.id }}">
+    
+                {% csrf_token %}
+                {{ form.none_field.errors }}
+                <button class="add-task-button"></button>
+                    
+                {{ form.title }}
+                {{ form.title.errors }}
+
+                <div hidden="true">{{form.category}}</div>
+                
+            </form>
+
+            <div class="current_tasks">
+                {% for current_task in tasks %}
+                <form class="complete-task" action="{% url 'complete-task' current_task.id %}?url={{request.path}}" method="post">
+                    {% csrf_token %}
+                    <button class="complete-task-button"></button>
+                </form>
+
+                    <div class="task-title">
+                        {{ current_task.title }}
+
+                        <div class="delete-task">
+                            <a href="{% url 'delete-task' current_task.id %}?url={{request.path}}">
+                                <ion-icon name="trash-outline" class="delete-icon"></ion-icon>
+                            </a>
+                        </div> 
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="completed_tasks">
+                <div class="label-completed">Завершенные</div>
+                {% for completed_task in completed %}
+                    <form class="complete-task" action="{% url 'complete-task' completed_task.id %}?url={{request.path}}" method="post">
+                        {% csrf_token %}
+                        <button class="complete-task-button"></button>
+                    </form>
+                    <div class="completed-task-title">
+                        {{ completed_task }}
+
+                        <span>
+                            <div class="delete-task">
+                                <a href="{% url 'delete-task' completed_task.id %}?url={{request.path}}">
+                                    <ion-icon name="trash-outline" class="delete-icon"></ion-icon>
+                                </a>
+                            </div> 
+                        </span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+</div>
+      
+{% endblock %}
